@@ -1,0 +1,32 @@
+pipeline{
+    tools{
+        maven 'mymaven'
+    }
+    agent any
+    stages{
+        stage('clone repo'){
+            steps{
+                git 'https://github.com/Nibha123-alt/DevOpsCodeDemo.git'
+            }
+        }
+        stage('build the code'){
+            steps{
+                sh 'mvn clean install package'
+                
+            }
+        }
+        
+        stage('Build Image'){
+            steps{
+               sh 'docker build -t myimage .'
+            }
+        }
+        stage('Push image to dockerhub'){
+            steps{
+                sh 'docker tag myimage nibha2904/cicd_pipeline:$BUILD_NUMBER'
+                sh 'docker login --username nibha2904 --password Nibha@123hcl'
+                sh 'docker push nibha2904/cicd_pipeline:$BUILD_NUMBER'
+            }
+        }
+    }
+}
