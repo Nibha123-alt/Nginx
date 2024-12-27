@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/Nibha123-alt/Nginx.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t mynginximage .'
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([string(credentialsId: 'DOCKER_HUB_PASWD', variable: 'DOCKER_HUB_PASWD')]) {
+                    sh 'docker login -u nibha2904 -p $DOCKER_HUB_PASWD' 
+                }
+                sh 'docker tag mynginximage nibha2904/cicd_pipeline'
+                sh 'docker push nibha2904/cicd_pipeline'
+            }
+        }
+        stage('Deploy Container') {
+            steps {
+                sh 'docker run -d -p 9090:80 nibha2904/cicd_pipeline'
+            }
+        }
+    }
+}
